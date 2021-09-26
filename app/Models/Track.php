@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\TrackStatistic;
+use App\Models\PlaylistTrack;
 
 class Track extends Model
 {
@@ -21,4 +23,13 @@ class Track extends Model
     protected $fillable = [
         'file_name',
     ];
+
+    public function playlistTracks()
+    {
+        return $this->hasMany(PlaylistTrack::class);
+    }
+    public function users()
+    {
+        return $this->hasMany(TrackStatistic::class);
+    }
 }
