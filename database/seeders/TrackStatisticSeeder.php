@@ -3,18 +3,17 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use App\Models\TrackStatistic;
 
-class DatabaseSeeder extends Seeder
+class TrackStatisticSeeder extends Seeder
 {
     /**
-     * Seed the application's database.
+     * Run the database seeds.
      *
      * @return void
      */
     public function run()
     {
-        $this->call([
-            TrackSeeder::class,
-        ]);
+        //
     }
 }

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateUsersTable extends Migration
+class CreatePlaylistTracksTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,13 @@ class CreateUsersTable extends Migration
      */
     public function up()
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('playlist_tracks', function (Blueprint $table) {
             $table->id();
-            $table->rememberToken();
+            $table->foreignId('playlist_id')->constrained();
+            $table->foreignId('track_id')->constrained();
+            $table->integer('order');
+            $table->integer('preference');
+            $table->double('num_plays', 8, 2);
             $table->timestamps();
         });
     }
@@ -27,6 +31,6 @@ class CreateUsersTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('playlist_tracks');
     }
 }
