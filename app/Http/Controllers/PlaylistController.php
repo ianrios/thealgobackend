@@ -39,21 +39,27 @@ class PlaylistController extends Controller
         $playlist = new Playlist;
 
         $playlist->user_id = $request->user()->id;
-        $playlist->preference = $request->preference;
+
+        if ($request->preference == 'neutral') {
+            $playlist->preference = 0;
+        } else if ($request->preference == 'positive') {
+            $playlist->preference = 1;
+        } else if ($request->preference == 'negative') {
+            $playlist->preference = -1;
+        }
+        $playlist->save();
 
         for ($i = 0; $i < count($request->playlistData); $i++) {
             $playlistTrack = new PlaylistTrack;
 
             $playlistTrack->playlist_id = $playlist->id;
-            $playlistTrack->track_id = $request->playlistData[$i]->track->id;
-            $playlistTrack->order = $request->playlistData[$i]->order;
-            $playlistTrack->preference = $request->playlistData[$i]->preference;
-            $playlistTrack->num_plays = $request->playlistData[$i]->num_plays;
+            $playlistTrack->order = $i;
+            $playlistTrack->track_id = $request->playlistData[$i]['track']['id'];
+            $playlistTrack->preference = $request->playlistData[$i]['placement_liked'];
+            $playlistTrack->num_plays = $request->playlistData[$i]['num_plays'];
 
             $playlistTrack->save();
         }
-
-        $playlist->save();
     }
 
     /**

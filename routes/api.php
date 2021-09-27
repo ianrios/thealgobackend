@@ -21,16 +21,22 @@ use App\Http\Controllers\TrackStatisticController;
 // Route::group(['middleware' => ['cors']], function () {
 
 Route::prefix('playlist')->group(function () {
-    // save new playlist
-    Route::post('/save', [PlaylistController::class, 'store']);
-    Route::post('/get', [PlaylistController::class, 'index']);
+
+    // get all playlist data
+    Route::get('/get', [PlaylistController::class, 'index']);
+
+    // requires token
+    Route::group(['middleware' => ['auth:api']], function () {
+        // save new playlist
+        Route::post('/save', [PlaylistController::class, 'store']);
+    });
 });
 
 
 Route::prefix('auth')->group(function () {
 
     // register new user
-    Route::post('/register', [UserController::class, 'register']);
+    Route::get('/register', [UserController::class, 'register']);
     // login existing user
     Route::post('/login', [UserController::class, 'login']);
 
@@ -42,4 +48,3 @@ Route::prefix('auth')->group(function () {
         Route::get('/logout', [UserController::class, 'logout']);
     });
 });
-// });
