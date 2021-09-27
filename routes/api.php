@@ -2,7 +2,11 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\PlaylistController;
+use App\Http\Controllers\PlaylistTrackController;
+use App\Http\Controllers\TrackController;
+use App\Http\Controllers\TrackStatisticController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -13,6 +17,15 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+
+// Route::group(['middleware' => ['cors']], function () {
+
+Route::prefix('playlist')->group(function () {
+    // save new playlist
+    Route::post('/save', [PlaylistController::class, 'store']);
+    Route::post('/get', [PlaylistController::class, 'index']);
+});
+
 
 Route::prefix('auth')->group(function () {
 
@@ -29,3 +42,4 @@ Route::prefix('auth')->group(function () {
         Route::get('/logout', [UserController::class, 'logout']);
     });
 });
+// });

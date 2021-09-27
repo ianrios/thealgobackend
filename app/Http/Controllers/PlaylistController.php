@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Playlist;
+use App\Models\PlaylistTrack;
 use Illuminate\Http\Request;
 
 class PlaylistController extends Controller
@@ -14,7 +15,7 @@ class PlaylistController extends Controller
      */
     public function index()
     {
-        //
+        return Playlist::with(['playlistTracks'])->get();
     }
 
     /**
@@ -35,7 +36,24 @@ class PlaylistController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $playlist = new Playlist;
+
+        $playlist->user_id = $request->user()->id;
+        $playlist->preference = $request->preference;
+
+        for ($i = 0; $i < count($request->playlistData); $i++) {
+            $playlistTrack = new PlaylistTrack;
+
+            $playlistTrack->playlist_id = $playlist->id;
+            $playlistTrack->track_id = $request->playlistData[$i]->track->id;
+            $playlistTrack->order = $request->playlistData[$i]->order;
+            $playlistTrack->preference = $request->playlistData[$i]->preference;
+            $playlistTrack->num_plays = $request->playlistData[$i]->num_plays;
+
+            $playlistTrack->save();
+        }
+
+        $playlist->save();
     }
 
     /**
