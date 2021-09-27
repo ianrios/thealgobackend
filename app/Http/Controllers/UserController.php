@@ -141,7 +141,7 @@ class UserController extends Controller
 
             /**Take note of this: Your user authentication access token is generated here **/
             $data['token'] =  $user->createToken('algoKnows')->accessToken;
-            $data['user_data'] = $user;
+            // $data['user_data'] = $user;
 
             return response(['data' => $data, 'message' => 'Account Logged In successfully!', 'status' => true]);
         }

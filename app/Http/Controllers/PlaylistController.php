@@ -53,7 +53,8 @@ class PlaylistController extends Controller
             $playlistTrack = new PlaylistTrack;
 
             $playlistTrack->playlist_id = $playlist->id;
-            $playlistTrack->order = $i;
+            $playlistTrack->order = $i + 1;
+            // dd($request->playlistData[$i]['track']['id']);
             $playlistTrack->track_id = $request->playlistData[$i]['track']['id'];
             $playlistTrack->preference = $request->playlistData[$i]['placement_liked'];
             $playlistTrack->num_plays = $request->playlistData[$i]['num_plays'];
