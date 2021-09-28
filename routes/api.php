@@ -23,7 +23,8 @@ use App\Http\Controllers\TrackStatisticController;
 Route::prefix('playlist')->group(function () {
 
     // get all playlist data
-    Route::get('/get', [PlaylistController::class, 'index']);
+    Route::get('/get/all', [PlaylistController::class, 'index']);
+    Route::get('/result', [TrackController::class, 'index']);
 
     // requires token
     Route::group(['middleware' => ['auth:api']], function () {

@@ -14,7 +14,7 @@ class TrackController extends Controller
      */
     public function index()
     {
-        //
+        return Track::all();
     }
 
     /**
