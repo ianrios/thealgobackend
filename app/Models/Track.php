@@ -22,6 +22,7 @@ class Track extends Model
      */
     protected $fillable = [
         'file_name',
+        'song_length',
     ];
 
     public function playlistTracks()

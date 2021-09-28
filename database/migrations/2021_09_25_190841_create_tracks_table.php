@@ -15,6 +15,7 @@ class CreateTracksTable extends Migration
     {
         Schema::create('tracks', function (Blueprint $table) {
             $table->id();
+            $table->text("song_length");
             $table->text("file_name");
             $table->timestamps();
         });
