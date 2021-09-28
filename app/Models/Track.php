@@ -22,7 +22,11 @@ class Track extends Model
      */
     protected $fillable = [
         'file_name',
-        'song_length',
+        // 'song_length',
+        'rank',
+        'listener_count',
+        'rating',
+        'play_count',
     ];
 
     public function playlistTracks()
