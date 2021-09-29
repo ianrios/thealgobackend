@@ -14,7 +14,18 @@ class TrackController extends Controller
      */
     public function index()
     {
-        return Track::all();
+        $tracks = Track::all();
+        for ($i = 0; $i < count($tracks); $i++) {
+
+            $track = [
+                'id' => $tracks[$i]['id'],
+                'file_name' => $tracks[$i]['file_name'],
+                'song_length' => $tracks[$i]['song_length']
+            ];
+
+            $tracks[$i]->track = $track;
+        }
+        return $tracks;
     }
 
     /**

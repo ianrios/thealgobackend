@@ -61,7 +61,7 @@ class PlaylistController extends Controller
             $playlistTrack->playlist_id = $playlist->id;
             $playlistTrack->order = $i + 1;
             $playlistTrack->track_id = $request->playlistData[$i]['track']['id'];
-            $playlistTrack->num_plays = $request->playlistData[$i]['num_plays'];
+            $playlistTrack->play_count = $request->playlistData[$i]['play_count'];
 
             if ($request->playlistData[$i]['placement_liked'] == 'neutral') {
                 $playlistTrack->preference = 0;
@@ -91,10 +91,11 @@ class PlaylistController extends Controller
 
             // updating current track data
             $currentTrack = Track::find($request->playlistData[$i]['track']['id']);
-            $currentTrack->play_count += $request->playlistData[$i]['num_plays'];
+            $currentTrack->play_count += $request->playlistData[$i]['play_count'];
             $currentTrack->listener_count = count(TrackStatistic::where('track_id', $request->playlistData[$i]['track']['id'])->get()->groupBy('user_id')->toArray());
 
             // items to modify in track now that all data was saved:
+            // TODO: look at playlist data and rank items based on popularity, retention time, order, listener_count, and more
             // "rank"
             // "rating"
 
