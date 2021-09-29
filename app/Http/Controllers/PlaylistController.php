@@ -71,6 +71,8 @@ class PlaylistController extends Controller
             // updating current track data
             $currentTrack = Track::find($request->playlistData[$i]['track']['id']);
             $currentTrack->play_count += $request->playlistData[$i]['play_count'];
+            $currentTrack->rating += $request->playlistData[$i]['preference'];
+            // $currentTrack->rating = $request->playlistData[$i]['preference'];
 
             $currentTrackStatistics = TrackStatistic::where('track_id', $currentTrack->id)->get();
             $groupedStats = $currentTrackStatistics->groupBy('user_id')->toArray();
@@ -78,12 +80,12 @@ class PlaylistController extends Controller
 
             $currentTrack->listener_count = $listenerCount;
 
-            // items to modify in track now that all data was saved:
-                // TODO: look at playlist data and rank items based on popularity, retention time, order, listener_count, and more
-                // "rank"
-                // "rating"
 
-                $currentTrack->save();
+            // TODO: look at playlist data and rank items based on popularity, retention time, order, listener_count, and more
+            // "rank"
+            // Rank should be a float number from 0 to 100
+
+            $currentTrack->save();
         }
     }
 

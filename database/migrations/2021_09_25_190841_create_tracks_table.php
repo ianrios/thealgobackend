@@ -17,7 +17,7 @@ class CreateTracksTable extends Migration
             $table->id();
             $table->text("file_name");
             $table->text("song_length");
-            $table->integer("rank");
+            $table->double('rank', 8, 6);
             $table->integer("listener_count");
             $table->integer("rating");
             $table->double('play_count', 8, 2);
