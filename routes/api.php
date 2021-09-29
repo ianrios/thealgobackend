@@ -47,5 +47,7 @@ Route::prefix('auth')->group(function () {
         Route::get('/user', [UserController::class, 'index']);
         // log out user
         Route::get('/logout', [UserController::class, 'logout']);
+        // check status
+        Route::get('/status', [UserController::class, 'index']);
     });
 });

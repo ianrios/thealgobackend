@@ -56,4 +56,11 @@ class User extends Authenticatable
     {
         return $this->hasMany(TrackStatistic::class);
     }
+
+    /**
+     * The relationships that should always be loaded.
+     *
+     * @var array
+     */
+    protected $with = ['trackStatistics'];
 }

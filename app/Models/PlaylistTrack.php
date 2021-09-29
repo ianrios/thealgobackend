@@ -21,7 +21,7 @@ class PlaylistTrack extends Model
      * @var array
      */
     protected $fillable = [
-        'order', 'preference', 'num_plays'
+        'order', 'preference', 'play_count'
     ];
 
     public function playlist()

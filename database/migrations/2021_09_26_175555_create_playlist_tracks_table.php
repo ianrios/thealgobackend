@@ -19,7 +19,7 @@ class CreatePlaylistTracksTable extends Migration
             $table->foreignId('track_id')->constrained();
             $table->integer('order');
             $table->integer('preference');
-            $table->double('num_plays', 8, 2);
+            $table->double('play_count', 8, 2);
             $table->timestamps();
         });
     }

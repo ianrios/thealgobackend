@@ -42,14 +42,7 @@ class PlaylistController extends Controller
         $playlist = new Playlist;
 
         $playlist->user_id = $request->user()->id;
-
-        if ($request->preference == 'neutral') {
-            $playlist->preference = 0;
-        } else if ($request->preference == 'positive') {
-            $playlist->preference = 1;
-        } else if ($request->preference == 'negative') {
-            $playlist->preference = -1;
-        }
+        $playlist->preference = $request->preference;
 
         $playlist->save();
 
@@ -62,14 +55,7 @@ class PlaylistController extends Controller
             $playlistTrack->order = $i + 1;
             $playlistTrack->track_id = $request->playlistData[$i]['track']['id'];
             $playlistTrack->play_count = $request->playlistData[$i]['play_count'];
-
-            if ($request->playlistData[$i]['placement_liked'] == 'neutral') {
-                $playlistTrack->preference = 0;
-            } else if ($request->playlistData[$i]['placement_liked'] == 'positive') {
-                $playlistTrack->preference = 1;
-            } else if ($request->playlistData[$i]['placement_liked'] == 'negative') {
-                $playlistTrack->preference = -1;
-            }
+            $playlistTrack->preference = $request->playlistData[$i]['placement_liked'];
 
             $playlistTrack->save();
 
@@ -78,28 +64,26 @@ class PlaylistController extends Controller
 
             $trackStatistic->track_id = $request->playlistData[$i]['track']['id'];
             $trackStatistic->user_id = $request->user()->id;
-
-            if ($request->playlistData[$i]['track']['liked'] == 'neutral') {
-                $trackStatistic->preference = 0;
-            } else if ($request->playlistData[$i]['track']['liked'] == 'positive') {
-                $trackStatistic->preference = 1;
-            } else if ($request->playlistData[$i]['track']['liked'] == 'negative') {
-                $trackStatistic->preference = -1;
-            }
+            $trackStatistic->preference = $request->playlistData[$i]['track']['preference'];
 
             $trackStatistic->save();
 
             // updating current track data
             $currentTrack = Track::find($request->playlistData[$i]['track']['id']);
             $currentTrack->play_count += $request->playlistData[$i]['play_count'];
-            $currentTrack->listener_count = count(TrackStatistic::where('track_id', $request->playlistData[$i]['track']['id'])->get()->groupBy('user_id')->toArray());
+
+            $currentTrackStatistics = TrackStatistic::where('track_id', $currentTrack->id)->get();
+            $groupedStats = $currentTrackStatistics->groupBy('user_id')->toArray();
+            $listenerCount = count($groupedStats);
+
+            $currentTrack->listener_count = $listenerCount;
 
             // items to modify in track now that all data was saved:
-            // TODO: look at playlist data and rank items based on popularity, retention time, order, listener_count, and more
-            // "rank"
-            // "rating"
+                // TODO: look at playlist data and rank items based on popularity, retention time, order, listener_count, and more
+                // "rank"
+                // "rating"
 
-            $currentTrack->save();
+                $currentTrack->save();
         }
     }
 
