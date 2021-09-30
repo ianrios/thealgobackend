@@ -16,37 +16,55 @@ class TrackController extends Controller
     public function index()
     {
         $tracks = Track::all();
-        // $trackStatistics = TrackStatistic::where('user_id', $request->user()->id)->get();
+        $trackStatistics = TrackStatistic::all()->groupBy('track_id')->toArray();
 
-
-
-        for ($i = 0; $i < count($tracks); $i++) {
-            // TODO: get all track statistics here too
-            $trackStatistics = TrackStatistic::where('track_id', $tracks[$i]->id)->get();
-            $groupedByUsers = $trackStatistics->groupBy('user_id')->toArray();
-            dd($groupedByUsers);
-            // $preference = 0;
-
-            // if ($trackStatistic) {
-            //     $preference = $trackStatistic->preference;
-            // }
-
+        foreach ($trackStatistics as $index => $trackStatistic) {
+            $listener_count = 0;
+            $play_count = 0;
+            $preference = 0;
+            $rating = 0;
+            $rank = 0;
+            for ($j = 0; $j < count($trackStatistic); $j++) {
+                $preference += $trackStatistic[$j]['preference'];
+                $rating += $trackStatistic[$j]['preference'];
+                $play_count += $trackStatistic[$j]['amount_listened'];
+                if ($trackStatistic[$j]['amount_listened'] > 0) {
+                    $listener_count++;
+                }
+            }
 
             // TODO: create rank on get
 
             // TODO: look at playlist data and rank items based on popularity, retention time, order, listener_count, and more
             // "rank"
-            // Rank should be a float number from 0 to 100
+            // if tie, use track->id for rank
+            // Rank should be a float number from 0 to 100 - must be unique
+
+
+            // TODO: reate popularity based on relation to each track, number 0 to 100
 
 
             $track = [
-                'id' => $tracks[$i]['id'],
-                'file_name' => $tracks[$i]['file_name'],
-                'song_length' => $tracks[$i]['song_length'],
-                // 'preference' => $preference
+                'id' => $tracks[$index - 1]['id'],
+                'file_name' => $tracks[$index - 1]['file_name'],
+                'song_length' => $tracks[$index - 1]['song_length'],
             ];
+            $tracks[$index - 1]['rating'] = $rating;
+            $tracks[$index - 1]['listener_count'] = $listener_count;
+            $tracks[$index - 1]['play_count'] = $play_count;
+            $tracks[$index - 1]['preference'] = $preference;
+            $tracks[$index - 1]['rank'] = $rank;
+            $tracks[$index - 1]->track = $track;
 
-            $tracks[$i]->track = $track;
+            // update track object in DB
+            $track = Track::find($tracks[$index - 1]['id']);
+
+            $track->rating = $rating;
+            $track->listener_count = $listener_count;
+            $track->play_count = $play_count;
+            $track->rank = $rank;
+
+            $track->save();
         }
         return $tracks;
     }

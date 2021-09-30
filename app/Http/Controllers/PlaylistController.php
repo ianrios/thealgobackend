@@ -60,19 +60,18 @@ class PlaylistController extends Controller
 
             $playlistTrack->save();
 
-
-            // updating current track data
-            $currentTrack = Track::find($request->playlistData[$i]['track']['id']);
-
             $foundStatistic = TrackStatistic::where('user_id', $request->user()->id)->where('track_id', $request->playlistData[$i]['track']['id'])->get()->toArray();
 
             if (count($foundStatistic) > 0) {
                 // update preference if there could potentially be a change
                 $updatingStatistic = TrackStatistic::find($foundStatistic[0]['id']);
+
+                // only need to update preference and amount listened
                 $updatingStatistic->preference = $request->playlistData[$i]['track']['preference'];
+                $updatingStatistic->amount_listened += $request->playlistData[$i]['play_count'];
+
                 $updatingStatistic->save();
             } else {
-
                 // creating new track statistic if we did not already have one
                 $trackStatistic = new TrackStatistic;
 
@@ -82,23 +81,6 @@ class PlaylistController extends Controller
                 $trackStatistic->amount_listened += $request->playlistData[$i]['play_count'];
 
                 $trackStatistic->save();
-                // only change rating if its a new statistic
-                $currentTrack->rating += $request->playlistData[$i]['track']['preference'];
-
-
-                // only updating or creating listener_count if we listened to the song
-                // if ($request->playlistData[$i]['play_count'] > 0) {
-                    // only update the listener count if its a new statistic
-                    // $currentTrackStatistics = TrackStatistic::where('track_id', $currentTrack->id)->get();
-                    // $groupedStats = $currentTrackStatistics->groupBy('user_id')->toArray();
-                    // $listenerCount = count($groupedStats);
-                    // $currentTrack->listener_count = $listenerCount;
-                // }
-
-                // update the play count anyway
-                $currentTrack->play_count += $request->playlistData[$i]['play_count'];
-
-                $currentTrack->save();
             }
         }
     }
