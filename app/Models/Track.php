@@ -33,7 +33,7 @@ class Track extends Model
     {
         return $this->hasMany(PlaylistTrack::class);
     }
-    public function users()
+    public function trackStatistics()
     {
         return $this->hasMany(TrackStatistic::class);
     }

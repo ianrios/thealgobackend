@@ -21,7 +21,8 @@ class TrackStatistic extends Model
      * @var array
      */
     protected $fillable = [
-        'preference'
+        'preference',
+        'amount_listened'
     ];
 
     public function track()

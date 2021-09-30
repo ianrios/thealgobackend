@@ -19,7 +19,16 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        return $request->user();
+
+        $user = $request->user();
+        // for ($i = 0; $i < count($user->track_statistics); $i++) {
+        //     $currentTrackStatistic = $user->track_statistics[$i];
+
+        //     // $user->track_statistics[$i]['track']->preference =
+        // }
+
+
+        return $user;
     }
 
     /**

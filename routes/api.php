@@ -24,6 +24,8 @@ Route::prefix('playlist')->group(function () {
 
     // get all playlist data
     Route::get('/get/all', [PlaylistController::class, 'index']);
+
+    // get user track data combined with final result
     Route::get('/result', [TrackController::class, 'index']);
 
     // requires token

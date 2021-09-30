@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Track;
+use App\Models\TrackStatistic;
 use Illuminate\Http\Request;
 
 class TrackController extends Controller
@@ -15,12 +16,34 @@ class TrackController extends Controller
     public function index()
     {
         $tracks = Track::all();
+        // $trackStatistics = TrackStatistic::where('user_id', $request->user()->id)->get();
+
+
+
         for ($i = 0; $i < count($tracks); $i++) {
+            // TODO: get all track statistics here too
+            $trackStatistics = TrackStatistic::where('track_id', $tracks[$i]->id)->get();
+            $groupedByUsers = $trackStatistics->groupBy('user_id')->toArray();
+            dd($groupedByUsers);
+            // $preference = 0;
+
+            // if ($trackStatistic) {
+            //     $preference = $trackStatistic->preference;
+            // }
+
+
+            // TODO: create rank on get
+
+            // TODO: look at playlist data and rank items based on popularity, retention time, order, listener_count, and more
+            // "rank"
+            // Rank should be a float number from 0 to 100
+
 
             $track = [
                 'id' => $tracks[$i]['id'],
                 'file_name' => $tracks[$i]['file_name'],
-                'song_length' => $tracks[$i]['song_length']
+                'song_length' => $tracks[$i]['song_length'],
+                // 'preference' => $preference
             ];
 
             $tracks[$i]->track = $track;

@@ -48,7 +48,8 @@ class PlaylistController extends Controller
 
         // save each track in playlist
         for ($i = 0; $i < count($request->playlistData); $i++) {
-            // creating new playlist track
+
+            // creating new playlist track even if we listened or not, since this tracks placement
             $playlistTrack = new PlaylistTrack;
 
             $playlistTrack->playlist_id = $playlist->id;
@@ -59,33 +60,46 @@ class PlaylistController extends Controller
 
             $playlistTrack->save();
 
-            // creating new track statistic
-            $trackStatistic = new TrackStatistic;
-
-            $trackStatistic->track_id = $request->playlistData[$i]['track']['id'];
-            $trackStatistic->user_id = $request->user()->id;
-            $trackStatistic->preference = $request->playlistData[$i]['track']['preference'];
-
-            $trackStatistic->save();
 
             // updating current track data
             $currentTrack = Track::find($request->playlistData[$i]['track']['id']);
-            $currentTrack->play_count += $request->playlistData[$i]['play_count'];
-            $currentTrack->rating += $request->playlistData[$i]['preference'];
-            // $currentTrack->rating = $request->playlistData[$i]['preference'];
 
-            $currentTrackStatistics = TrackStatistic::where('track_id', $currentTrack->id)->get();
-            $groupedStats = $currentTrackStatistics->groupBy('user_id')->toArray();
-            $listenerCount = count($groupedStats);
+            $foundStatistic = TrackStatistic::where('user_id', $request->user()->id)->where('track_id', $request->playlistData[$i]['track']['id'])->get()->toArray();
 
-            $currentTrack->listener_count = $listenerCount;
+            if (count($foundStatistic) > 0) {
+                // update preference if there could potentially be a change
+                $updatingStatistic = TrackStatistic::find($foundStatistic[0]['id']);
+                $updatingStatistic->preference = $request->playlistData[$i]['track']['preference'];
+                $updatingStatistic->save();
+            } else {
+
+                // creating new track statistic if we did not already have one
+                $trackStatistic = new TrackStatistic;
+
+                $trackStatistic->track_id = $request->playlistData[$i]['track']['id'];
+                $trackStatistic->user_id = $request->user()->id;
+                $trackStatistic->preference = $request->playlistData[$i]['track']['preference'];
+                $trackStatistic->amount_listened += $request->playlistData[$i]['play_count'];
+
+                $trackStatistic->save();
+                // only change rating if its a new statistic
+                $currentTrack->rating += $request->playlistData[$i]['track']['preference'];
 
 
-            // TODO: look at playlist data and rank items based on popularity, retention time, order, listener_count, and more
-            // "rank"
-            // Rank should be a float number from 0 to 100
+                // only updating or creating listener_count if we listened to the song
+                // if ($request->playlistData[$i]['play_count'] > 0) {
+                    // only update the listener count if its a new statistic
+                    // $currentTrackStatistics = TrackStatistic::where('track_id', $currentTrack->id)->get();
+                    // $groupedStats = $currentTrackStatistics->groupBy('user_id')->toArray();
+                    // $listenerCount = count($groupedStats);
+                    // $currentTrack->listener_count = $listenerCount;
+                // }
 
-            $currentTrack->save();
+                // update the play count anyway
+                $currentTrack->play_count += $request->playlistData[$i]['play_count'];
+
+                $currentTrack->save();
+            }
         }
     }
 

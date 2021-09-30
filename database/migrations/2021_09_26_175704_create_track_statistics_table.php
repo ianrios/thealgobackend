@@ -18,6 +18,7 @@ class CreateTrackStatisticsTable extends Migration
             $table->foreignId('user_id')->constrained();
             $table->foreignId('track_id')->constrained();
             $table->integer('preference');
+            $table->double('amount_listened', 8, 2);
             $table->timestamps();
         });
     }
