@@ -16,6 +16,30 @@ class TrackController extends Controller
     public function index()
     {
         $tracks = Track::all();
+        // $rankedTracks = $tracks->sortBy([
+        //     //     // ['listener_count', 'desc'],
+        //     //     // ['rating', 'desc'],
+        //     ['play_count', 'desc'],
+        //     //     // ['id', 'asc'],
+        // ])->toArray();
+        // // dd($rankedTracks);
+
+        // TODO: test to make sure its preference first, then play count then listener count
+
+        $rankedTracks = $tracks->sortBy([
+            ['preference', 'desc'],
+            ['play_count', 'desc'],
+            ['listener_count', 'desc'],
+        ])->toArray();
+        // dd($rankedTracks);
+
+        $ranking = [];
+        for ($i = 0; $i < count($tracks); $i++) {
+            array_push($ranking, $rankedTracks[$i]['id']);
+        }
+        // dd($ranking);
+
+
         $trackStatistics = TrackStatistic::all()->groupBy('track_id')->toArray();
 
         foreach ($trackStatistics as $index => $trackStatistic) {
@@ -23,7 +47,8 @@ class TrackController extends Controller
             $play_count = 0;
             $preference = 0;
             $rating = 0;
-            $rank = 0;
+            $rank = $ranking[$index - 1];
+            // echo $rank.', ';
             for ($j = 0; $j < count($trackStatistic); $j++) {
                 $preference += $trackStatistic[$j]['preference'];
                 $rating += $trackStatistic[$j]['preference'];
@@ -32,14 +57,6 @@ class TrackController extends Controller
                     $listener_count++;
                 }
             }
-
-            // TODO: create rank on get
-
-            // TODO: look at playlist data and rank items based on popularity, retention time, order, listener_count, and more
-            // "rank"
-            // if tie, use track->id for rank
-            // Rank should be a float number from 0 to 100 - must be unique
-
 
             // TODO: reate popularity based on relation to each track, number 0 to 100
 
@@ -51,7 +68,7 @@ class TrackController extends Controller
             ];
             $tracks[$index - 1]['rating'] = $rating;
             $tracks[$index - 1]['listener_count'] = $listener_count;
-            $tracks[$index - 1]['play_count'] = $play_count;
+            $tracks[$index - 1]['play_count'] = (float)number_format($play_count, 1, '.', "");
             $tracks[$index - 1]['preference'] = $preference;
             $tracks[$index - 1]['rank'] = $rank;
             $tracks[$index - 1]->track = $track;
@@ -61,11 +78,14 @@ class TrackController extends Controller
 
             $track->rating = $rating;
             $track->listener_count = $listener_count;
-            $track->play_count = $play_count;
+            $track->play_count = (float)number_format($play_count, 1, '.', "");
             $track->rank = $rank;
-
             $track->save();
         }
+
+        // $sortedTracks = $tracks->sortBy('rank');
+
+        // return $sortedTracks;
         return $tracks;
     }
 

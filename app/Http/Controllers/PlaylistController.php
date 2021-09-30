@@ -7,6 +7,7 @@ use App\Models\Track;
 use App\Models\PlaylistTrack;
 use App\Models\TrackStatistic;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PlaylistController extends Controller
 {
@@ -49,39 +50,30 @@ class PlaylistController extends Controller
         // save each track in playlist
         for ($i = 0; $i < count($request->playlistData); $i++) {
 
+            $playlistTrackData = $request->playlistData[$i];
+
             // creating new playlist track even if we listened or not, since this tracks placement
             $playlistTrack = new PlaylistTrack;
 
             $playlistTrack->playlist_id = $playlist->id;
             $playlistTrack->order = $i + 1;
-            $playlistTrack->track_id = $request->playlistData[$i]['track']['id'];
-            $playlistTrack->play_count = $request->playlistData[$i]['play_count'];
-            $playlistTrack->preference = $request->playlistData[$i]['placement_liked'];
+            $playlistTrack->track_id = $playlistTrackData['track']['id'];
+            $playlistTrack->play_count = $playlistTrackData['play_count'];
+            $playlistTrack->preference = $playlistTrackData['placement_liked'];
+            // $playlistTrack->rating = $playlistTrackData['rating'];
 
             $playlistTrack->save();
 
-            $foundStatistic = TrackStatistic::where('user_id', $request->user()->id)->where('track_id', $request->playlistData[$i]['track']['id'])->get()->toArray();
+            $track = $playlistTrackData['track'];
 
-            if (count($foundStatistic) > 0) {
-                // update preference if there could potentially be a change
-                $updatingStatistic = TrackStatistic::find($foundStatistic[0]['id']);
+            $trackStatistic = TrackStatistic::updateOrCreate(
+                ['user_id' => $request->user()->id, 'track_id' => $track['id']],
+                ['preference' => $playlistTrackData['preference']]
+            );
 
-                // only need to update preference and amount listened
-                $updatingStatistic->preference = $request->playlistData[$i]['track']['preference'];
-                $updatingStatistic->amount_listened += $request->playlistData[$i]['play_count'];
+            $trackStatistic->amount_listened += $playlistTrackData['play_count'];
 
-                $updatingStatistic->save();
-            } else {
-                // creating new track statistic if we did not already have one
-                $trackStatistic = new TrackStatistic;
-
-                $trackStatistic->track_id = $request->playlistData[$i]['track']['id'];
-                $trackStatistic->user_id = $request->user()->id;
-                $trackStatistic->preference = $request->playlistData[$i]['track']['preference'];
-                $trackStatistic->amount_listened += $request->playlistData[$i]['play_count'];
-
-                $trackStatistic->save();
-            }
+            $trackStatistic->save();
         }
     }
 
