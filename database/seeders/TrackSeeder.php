@@ -47,6 +47,7 @@ class TrackSeeder extends Seeder
             $track->listener_count = 0;
             $track->rating = 0;
             $track->play_count = 0;
+            $track->interactions = 0;
             $track->save();
         }
     }

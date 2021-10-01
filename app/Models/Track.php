@@ -27,6 +27,7 @@ class Track extends Model
         'listener_count',
         'rating',
         'play_count',
+        'interactions',
     ];
 
     public function playlistTracks()

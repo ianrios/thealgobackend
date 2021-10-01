@@ -21,6 +21,7 @@ class CreateTracksTable extends Migration
             $table->integer("listener_count");
             $table->integer("rating");
             $table->double('play_count', 8, 2);
+            $table->integer("interactions");
             $table->timestamps();
         });
     }

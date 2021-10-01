@@ -8,6 +8,59 @@ use Illuminate\Http\Request;
 
 class TrackController extends Controller
 {
+
+    public function knapsack($ratings, $playCounts, $listenerCounts)
+    {
+        // TODO: test to make sure its preference first, then play count then listener count
+        $weights = [];
+        for ($i = 0; $i < count($ratings); $i++) {
+
+            $sum = $ratings[$i]['rating'] + $playCounts[$i]['play_count'] + $listenerCounts[$i]['listener_count'];
+
+
+            array_push($weights, [
+                'sum' => $sum,
+                'ratingWeight' => [$ratings[$i]['id'], $ratings[$i]['rating']],
+                'playCountWeight' => [$playCounts[$i]['id'], $playCounts[$i]['play_count']],
+                'listenerCountWeight' => [$listenerCounts[$i]['id'], $listenerCounts[$i]['listener_count']],
+            ]);
+        }
+
+        $finalRank = [];
+
+        // $sumCol = array_column($weights, 'sum');
+
+        // array_multisort($sumCol, SORT_DESC, $weights);
+
+        // dd($weights);
+
+        foreach ($weights as $index => $weight) {
+            if ($weight['ratingWeight'][1] >= $weight['playCountWeight'][1]) {
+                if (!in_array($weight['ratingWeight'][0], $finalRank)) {
+                    array_push($finalRank, $weight['ratingWeight'][0]);
+                    continue;
+                }
+            }
+            if ($weight['playCountWeight'][1] >= $weight['listenerCountWeight'][1]) {
+                if (!in_array($weight['playCountWeight'][0], $finalRank)) {
+                    array_push($finalRank, $weight['playCountWeight'][0]);
+                    continue;
+                }
+            }
+            if (!in_array($weight['listenerCountWeight'][0], $finalRank)) {
+                array_push($finalRank, $weight['listenerCountWeight'][0]);
+            } else if (!in_array($weight['playCountWeight'][0], $finalRank)) {
+                array_push($finalRank, $weight['playCountWeight'][0]);
+            } else if (!in_array($weight['ratingWeight'][0], $finalRank)) {
+                array_push($finalRank, $weight['ratingWeight'][0]);
+            }
+        }
+        // dd($finalRank);
+
+        // dd($weights);
+        return $finalRank;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -16,43 +69,31 @@ class TrackController extends Controller
     public function index()
     {
         $tracks = Track::all();
-        // $rankedTracks = $tracks->sortBy([
-        //     //     // ['listener_count', 'desc'],
-        //     //     // ['rating', 'desc'],
-        //     ['play_count', 'desc'],
-        //     //     // ['id', 'asc'],
-        // ])->toArray();
-        // // dd($rankedTracks);
 
-        // TODO: test to make sure its preference first, then play count then listener count
-
-        $rankedTracks = $tracks->sortBy([
-            ['preference', 'desc'],
-            ['play_count', 'desc'],
-            ['listener_count', 'desc'],
-        ])->toArray();
-        // dd($rankedTracks);
-
-        $ranking = [];
-        for ($i = 0; $i < count($tracks); $i++) {
-            array_push($ranking, $rankedTracks[$i]['id']);
-        }
-        // dd($ranking);
-
+        $ratings = $tracks->sortBy([['rating', 'desc']]); // 1
+        $playCounts = $tracks->sortBy([['play_count', 'desc']]); // 2
+        $listenerCounts = $tracks->sortBy([['listener_count', 'desc']]); // 3
+        $finalRank = $this->knapsack($ratings, $playCounts, $listenerCounts);
 
         $trackStatistics = TrackStatistic::all()->groupBy('track_id')->toArray();
+        // dd($trackStatistics);
 
         foreach ($trackStatistics as $index => $trackStatistic) {
+            // dd($index);
             $listener_count = 0;
             $play_count = 0;
             $preference = 0;
             $rating = 0;
-            $rank = $ranking[$index - 1];
+            $interactions = 0;
+            $rank = $finalRank[$index - 1];
             // echo $rank.', ';
             for ($j = 0; $j < count($trackStatistic); $j++) {
                 $preference += $trackStatistic[$j]['preference'];
                 $rating += $trackStatistic[$j]['preference'];
                 $play_count += $trackStatistic[$j]['amount_listened'];
+                if ($trackStatistic[$j]['preference'] != 0) {
+                    $interactions++;
+                }
                 if ($trackStatistic[$j]['amount_listened'] > 0) {
                     $listener_count++;
                 }
@@ -70,8 +111,9 @@ class TrackController extends Controller
             $tracks[$index - 1]['listener_count'] = $listener_count;
             $tracks[$index - 1]['play_count'] = (float)number_format($play_count, 1, '.', "");
             $tracks[$index - 1]['preference'] = $preference;
+            $tracks[$index - 1]['interactions'] = $interactions;
             $tracks[$index - 1]['rank'] = $rank;
-            $tracks[$index - 1]->track = $track;
+            // $tracks[$index - 1]->track = $track;
 
             // update track object in DB
             $track = Track::find($tracks[$index - 1]['id']);
@@ -80,6 +122,7 @@ class TrackController extends Controller
             $track->listener_count = $listener_count;
             $track->play_count = (float)number_format($play_count, 1, '.', "");
             $track->rank = $rank;
+            $track->interactions = $interactions;
             $track->save();
         }
 

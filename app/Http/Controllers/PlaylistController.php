@@ -57,23 +57,40 @@ class PlaylistController extends Controller
 
             $playlistTrack->playlist_id = $playlist->id;
             $playlistTrack->order = $i + 1;
-            $playlistTrack->track_id = $playlistTrackData['track']['id'];
+            $playlistTrack->track_id = $playlistTrackData['id'];
             $playlistTrack->play_count = $playlistTrackData['play_count'];
             $playlistTrack->preference = $playlistTrackData['placement_liked'];
             // $playlistTrack->rating = $playlistTrackData['rating'];
 
             $playlistTrack->save();
 
-            $track = $playlistTrackData['track'];
+            $trackStatistic = TrackStatistic::where('user_id', $request->user()->id)->where('track_id', $playlistTrackData['id'])->get()->toArray();
 
-            $trackStatistic = TrackStatistic::updateOrCreate(
-                ['user_id' => $request->user()->id, 'track_id' => $track['id']],
-                ['preference' => $playlistTrackData['preference']]
-            );
-
-            $trackStatistic->amount_listened += $playlistTrackData['play_count'];
-
+            if (count($trackStatistic) > 0) {
+                $trackStatistic = TrackStatistic::find($trackStatistic[0]['id']);
+                $trackStatistic->amount_listened += $playlistTrackData['play_count'];
+            } else {
+                $trackStatistic = new TrackStatistic;
+                $trackStatistic->user_id = $request->user()->id;
+                $trackStatistic->track_id = $playlistTrackData['id'];
+                $trackStatistic->amount_listened = $playlistTrackData['play_count'];
+            }
+            $trackStatistic->preference = $playlistTrackData['preference'];
             $trackStatistic->save();
+            echo $trackStatistic->amount_listened . ', ';
+
+            // $trackStatistic = TrackStatistic::updateOrCreate(
+            //     ['user_id' => $request->user()->id, 'track_id' => $playlistTrackData['id']],
+            //     [
+            //         'preference' => $playlistTrackData['preference'],
+            //         'amount_listened' => 0,
+            //     ]
+            // );
+            // $trackStatistic->save();
+
+            // $trackStatistic->amount_listened += $playlistTrackData['play_count'];
+
+            // $trackStatistic->save();
         }
     }
 
