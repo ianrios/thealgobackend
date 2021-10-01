@@ -77,7 +77,6 @@ class PlaylistController extends Controller
             }
             $trackStatistic->preference = $playlistTrackData['preference'];
             $trackStatistic->save();
-            echo $trackStatistic->amount_listened . ', ';
 
             // $trackStatistic = TrackStatistic::updateOrCreate(
             //     ['user_id' => $request->user()->id, 'track_id' => $playlistTrackData['id']],

@@ -28,12 +28,6 @@ class TrackController extends Controller
 
         $finalRank = [];
 
-        // $sumCol = array_column($weights, 'sum');
-
-        // array_multisort($sumCol, SORT_DESC, $weights);
-
-        // dd($weights);
-
         foreach ($weights as $index => $weight) {
             if ($weight['ratingWeight'][1] >= $weight['playCountWeight'][1]) {
                 if (!in_array($weight['ratingWeight'][0], $finalRank)) {
@@ -56,8 +50,16 @@ class TrackController extends Controller
             }
         }
         // dd($finalRank);
+        if (count($finalRank) < 16) {
+            // add missing indexes in order that they should appear
+            for ($i = 1; $i <= 16; $i++) {
+                if (!in_array($i, $finalRank)) {
+                    array_push($finalRank, $i);
+                }
+            }
+        }
+        // dd($finalRank);
 
-        // dd($weights);
         return $finalRank;
     }
 
@@ -76,17 +78,16 @@ class TrackController extends Controller
         $finalRank = $this->knapsack($ratings, $playCounts, $listenerCounts);
 
         $trackStatistics = TrackStatistic::all()->groupBy('track_id')->toArray();
-        // dd($trackStatistics);
 
         foreach ($trackStatistics as $index => $trackStatistic) {
-            // dd($index);
             $listener_count = 0;
             $play_count = 0;
             $preference = 0;
             $rating = 0;
             $interactions = 0;
-            $rank = $finalRank[$index - 1];
-            // echo $rank.', ';
+
+            $rank = array_search($index, $finalRank);
+
             for ($j = 0; $j < count($trackStatistic); $j++) {
                 $preference += $trackStatistic[$j]['preference'];
                 $rating += $trackStatistic[$j]['preference'];
