@@ -22,6 +22,13 @@ use App\Http\Controllers\TrackStatisticController;
 
 Route::prefix('playlist')->group(function () {
 
+    // TODO: move all playlist generating code to backend
+    // Route::get('/create', [PlaylistController::class, 'new playlist to send to front end']);
+    // Route::post('/track/save', [PlaylistController::class, 'new song info to save from current playlist']);
+    // Route::post('/track/ like / dislike', [PlaylistController::class, 'new song info to save from current playlist']);
+    // Route::post('/track/ increment plays', [PlaylistController::class, 'new song info to save from current playlist']);
+
+
     // get all playlist data
     Route::get('/get/all', [PlaylistController::class, 'index']);
 
